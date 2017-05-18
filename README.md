@@ -28,16 +28,18 @@ Projeto da disciplina de Computação grafica dos alunos Pedro Pires e Renato Co
       camera.position.set(0, -7, 3);
 
       //Scene
-
+      //Cria uma scene (????)
       scene = new THREE.Scene();
 
       //Renderer
+      //Cria um Renderer (??)
       renderer = new THREE.WebGLRenderer();
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.setSize( window.innerWidth, window.innerHeight );
       container.appendChild( renderer.domElement );
 
       //Plane for the ground
+      //Cria um chão
       var planeGeometry = new THREE.PlaneBufferGeometry(20, 20, 20);
       var planeMaterial = new THREE.MeshBasicMaterial({color: 0x0f0f0f});
       plane = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -45,10 +47,12 @@ Projeto da disciplina de Computação grafica dos alunos Pedro Pires e Renato Co
       scene.add(plane);
 
       //ambient light
+      // Adiciona uma luz ambiente(globa)
       var ambient = new THREE.AmbientLight(0x101030);
       scene.add( ambient );
 
       //Spotlight
+      // Adiciona uma luz direcional e arruma algumas configurações de Sombra
       var spotlight = new THREE.SpotLight( 0xffffff);
       spotlight.position.set(100, -100, 100);
       spotlight.castShadow = true;
@@ -60,6 +64,7 @@ Projeto da disciplina de Computação grafica dos alunos Pedro Pires e Renato Co
       scene.add ( spotlight );
 
       //obj file
+      //Carrega um arquivo .obj para a memória
       var loader = new THREE.OBJLoader(); 
       loader.load(
         '3DModels/Stormtrooper/Stormtrooper.obj',
@@ -72,8 +77,10 @@ Projeto da disciplina de Computação grafica dos alunos Pedro Pires e Renato Co
           });
 
       //Camera look at
+      //Faz a camera centralizar no centro do plano
       camera.lookAt(plane.position);
-
+      
+      //Adiciona um listener para que o "mundo" seja redimencionado quando a janela é
       window.addEventListener( 'resize', onWindowResize, false );
 
           }
