@@ -8,6 +8,8 @@
 	<body>
 		<script src="js/three.js"></script>
 		<script src="js/OBJLoader.js"></script>
+		<script src="js/Detector.js"></script>
+
 
 
 		<script>
@@ -16,8 +18,13 @@
 			var container;
 			var obj;
 
-			init();
-			render();
+			if (Detector.webgl) {
+    			init();
+    			animate();
+			} else {
+			    var warning = Detector.getWebGLErrorMessage();
+			    document.getElementById('container').appendChild(warning);
+			}
 			
 			function init(){
 				container = document.createElement('div');
