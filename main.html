@@ -42,14 +42,25 @@
 				renderer = new THREE.WebGLRenderer();
 				renderer.setPixelRatio(window.devicePixelRatio);
 				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.shadowMap.enabled = true;
+				renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 				container.appendChild( renderer.domElement );
 
-				//Plane for the ground
-				var planeGeometry = new THREE.PlaneBufferGeometry(20, 20, 20);
-				var planeMaterial = new THREE.MeshBasicMaterial({color: 0x0f0f0f});
-				plane = new THREE.Mesh(planeGeometry, planeMaterial);
-				plane.position.set(0,0,0);
-				scene.add(plane);
+				//Grass ground
+				var loader = new THREE.TextureLoader();
+				var groundTexture = loader.load( 'Textures/grasslight-big.jpg' );
+				groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+				groundTexture.repeat.set( 1500, 1500 );
+				groundTexture.anisotropy = 16;
+
+				var groundMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111, map: groundTexture } );
+
+				var mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 20000, 20000 ), groundMaterial );
+				mesh.position.y = 0;
+				mesh.rotation.x = 0;
+				mesh.receiveShadow = true;
+				scene.add( mesh );
+
 
 				//ambient light
 				var ambient = new THREE.AmbientLight(0x101030);
@@ -57,13 +68,15 @@
 
 				//Spotlight
 				var spotlight = new THREE.SpotLight( 0xffffff);
-				spotlight.position.set(100, -100, 100);
+				spotlight.position.set(0, -10, 10);
 				spotlight.castShadow = true;
 				spotlight.shadow.mapSize.width = 1024;
 				spotlight.shadow.mapSize.height = 1024;
-				spotlight.shadow.camera.near = 500;
-				spotlight.shadow.camera.far = 4000;
-				spotlight.shadowCameraFOV = 30;
+
+				
+				spotlight.shadow.camera.near = 1;
+				spotlight.shadow.camera.far = 100;
+				spotlight.shadowCameraFOV = 75;
 				scene.add ( spotlight );
 
 				//obj file
@@ -71,6 +84,7 @@
 				loader.load(
 					'3DModels/Stormtrooper/Stormtrooper.obj',
 				  	function ( object ) {
+				  		object.castShadow = true;
 				  		object.scale.set(1, 1, 1);
 				  		object.position.set(0, 0, 0);
 				  		object.rotation.x = -80;
@@ -79,7 +93,7 @@
 				});
 
 				//Camera look at
-				camera.lookAt(plane.position);
+				camera.lookAt(scene.position);
 
 				window.addEventListener( 'resize', onWindowResize, false );
 
