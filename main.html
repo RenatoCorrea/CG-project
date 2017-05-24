@@ -10,17 +10,28 @@
 		<script src="js/OBJLoader.js"></script>
 		<script src="js/Detector.js"></script>
 
-		<script id="vertexShader" type="x-shader/x-vertex">
-		    void main() {
-			  gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+		<script id="vs_STrooper" type="x-shader/x-vertex">
+		    void main() {		    	
+			  	gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);			  
 			}
 		</script>
 
-		<script id="fragmentShader" type="x-shader/x-fragment">
-	        gl_FragColor = vec4(1.0,  // R
-                      0.0,  // G
-                      1.0,  // B
-                      1.0); // A
+		<script id="fs_STrooper" type="x-shader/x-fragment">
+	        void main() {
+	        	gl_FragColor = vec4(0.33, 0.213, 0.01, 0.3123);
+	        }
+    	</script>
+
+    	<script id="vs_BB8" type="x-shader/x-vertex">
+		    void main() {		    	
+			  	gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);			  
+			}
+		</script>
+
+		<script id="fs_BB8" type="x-shader/x-fragment">
+	        void main() {
+	        	gl_FragColor = vec4(0.33, 0.213, 0.01, 0.3123);
+	        }
     	</script>
 
 		<script>
@@ -93,23 +104,22 @@
 
 				//obj file - load Stormtrooper				
 				var loader = new THREE.OBJLoader(); 
-				loader.load(					
-					'3DModels/Stormtrooper/Stormtrooper.obj',
-				  	function ( object ) {				  	
 
-				  		/*var itemMaterial = new THREE.ShaderMaterial({					    
-					    	vertexShader: document.getElementById('vertexShader').innerHTML,
-					    	fragmentShader: document.getElementById('fragmentShader').innerHTML
-						});
+						
 
-						object.traverse(function(child) {
-			                if (child instanceof THREE.Mesh) {			                    			                  
-			                    child.material = itemMaterial;			                   		                   
-			                }
-			            });*/
+				loader.load('3DModels/Stormtrooper/Stormtrooper.obj', function ( object ) {				  					  			
+						var sTrooperMaterial = new THREE.ShaderMaterial({								
+				   			vertexShader: document.getElementById('vs_STrooper').innerHTML,
+				   			fragmentShader: document.getElementById('fs_STrooper').innerHTML
+						});							
 
-				  		object.castShadow = true;
-				  		object.scale.set(1, 1, 1);
+						object.traverse( function ( child ) {
+				        	if ( child instanceof THREE.Mesh ) {
+				            	child.material = sTrooperMaterial;
+				        	}				        	
+				    	});
+
+				  		object.castShadow = true;				  	
 				  		object.position.set(3, 0, 0);
 				  		object.rotation.x = -80;
 			      		scene.add( object );
@@ -118,10 +128,20 @@
 
 				//obj file - load BB8
 				loader = new THREE.OBJLoader(); 
-				loader.load(
-					'3DModels/bb8/bb8.obj',
-				  	function ( object ) {
-				  		object.castShadow = true;
+				loader.load('3DModels/bb8/bb8.obj',	function ( object ) {
+
+						var bb8Material = new THREE.ShaderMaterial({								
+				   			vertexShader: document.getElementById('vs_BB8').innerHTML,
+				   			fragmentShader: document.getElementById('fs_BB8').innerHTML
+						});
+
+						object.traverse( function ( child ) {
+				        	if ( child instanceof THREE.Mesh ) {
+				            	child.material = bb8Material;
+				        	}				        	
+				    	});
+
+				  		object.castShadow = true;				  						  		
 				  		object.scale.set(0.01, 0.01, 0.01);
 				  		object.position.set(-3, 0, 0);
 				  		object.rotation.x = -80;
@@ -142,7 +162,6 @@
 				camera.updateProjectionMatrix();
 
 				renderer.setSize( window.innerWidth, window.innerHeight );
-
 			}
 
 			function render() {
