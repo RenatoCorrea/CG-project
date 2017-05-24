@@ -33,16 +33,27 @@
 			}
     	</script>
 
-    	<script id="vs_BB8" type="x-shader/x-vertex">
-		    void main() {		    	
-			  	gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);			  
+    	<script id="vs_BB8" type="x-shader/x-vertex">		    
+			varying vec2 vUv;
+			void main()
+			{
+				vUv = uv;
+				vec4 mvPosition = modelViewMatrix * vec4( position, 0.8 );
+				gl_Position = projectionMatrix * mvPosition;				
 			}
 		</script>
 
 		<script id="fs_BB8" type="x-shader/x-fragment">
-	        void main() {
-	        	gl_FragColor = vec4(0.33, 0.213, 0.01, 0.3123);
-	        }
+	        uniform float time;
+			uniform vec2 resolution;
+			varying vec2 vUv;
+			void main( void ) {
+				vec2 position = -1.0 + 2.0 * vUv;
+				float red = abs( cos( position.y / position.x / time ) );
+				float green = abs( cos( position.y / position.x + 4.5));
+				float blue = abs( cos( position.x * position.y * 1.2 * position.x ) );
+				gl_FragColor = vec4( red, green, blue, 1.0 );
+			}
     	</script>
 
 		<script>
@@ -149,12 +160,13 @@
 				loader.load('3DModels/bb8/bb8.obj',	function ( object ) {
 
 						var bb8Material = new THREE.ShaderMaterial({								
+							uniforms : uniforms1,
 				   			vertexShader: document.getElementById('vs_BB8').innerHTML,
 				   			fragmentShader: document.getElementById('fs_BB8').innerHTML
 						});
 
 						object.traverse( function ( child ) {
-				        	if ( child instanceof THREE.Mesh ) {
+				        	if ( child instanceof THREE.Mesh ) {				        		
 				            	child.material = bb8Material;
 				        	}				        	
 				    	});
@@ -187,9 +199,7 @@
 				render();
 			}
 
-			function render() {
-				
-
+			function render() {				
 				var delta = clock.getDelta();
 				uniforms1.time.value += delta * 5;
 				obj_strooper.rotation.y += 0.03;
