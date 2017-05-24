@@ -10,13 +10,25 @@
 		<script src="js/OBJLoader.js"></script>
 		<script src="js/Detector.js"></script>
 
+		<script id="vertexShader" type="x-shader/x-vertex">
+		    void main() {
+			  gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+			}
+		</script>
 
+		<script id="fragmentShader" type="x-shader/x-fragment">
+	        gl_FragColor = vec4(1.0,  // R
+                      0.0,  // G
+                      1.0,  // B
+                      1.0); // A
+    	</script>
 
 		<script>
 			var camera, scene, renderer;
 			var plane;
 			var container;
-			var obj;
+			var obj_strooper;
+			var obj_bb8;
 
 			if (Detector.webgl) {
     			init();
@@ -35,7 +47,6 @@
 				camera.position.set(0, -7, 3);
 
 				//Scene
-
 				scene = new THREE.Scene();
 
 				//Renderer
@@ -71,25 +82,51 @@
 				spotlight.position.set(0, -10, 10);
 				spotlight.castShadow = true;
 				spotlight.shadow.mapSize.width = 1024;
-				spotlight.shadow.mapSize.height = 1024;
-
-				
+				spotlight.shadow.mapSize.height = 1024;		
 				spotlight.shadow.camera.near = 1;
 				spotlight.shadow.camera.far = 100;
 				spotlight.shadowCameraFOV = 75;
 				scene.add ( spotlight );
 
-				//obj file
+
+
+
+				//obj file - load Stormtrooper				
 				var loader = new THREE.OBJLoader(); 
-				loader.load(
+				loader.load(					
 					'3DModels/Stormtrooper/Stormtrooper.obj',
-				  	function ( object ) {
+				  	function ( object ) {				  	
+
+				  		/*var itemMaterial = new THREE.ShaderMaterial({					    
+					    	vertexShader: document.getElementById('vertexShader').innerHTML,
+					    	fragmentShader: document.getElementById('fragmentShader').innerHTML
+						});
+
+						object.traverse(function(child) {
+			                if (child instanceof THREE.Mesh) {			                    			                  
+			                    child.material = itemMaterial;			                   		                   
+			                }
+			            });*/
+
 				  		object.castShadow = true;
 				  		object.scale.set(1, 1, 1);
-				  		object.position.set(0, 0, 0);
+				  		object.position.set(3, 0, 0);
 				  		object.rotation.x = -80;
 			      		scene.add( object );
-			      		obj = object;
+			      		obj_strooper = object;			      	
+				});
+
+				//obj file - load BB8
+				loader = new THREE.OBJLoader(); 
+				loader.load(
+					'3DModels/bb8/bb8.obj',
+				  	function ( object ) {
+				  		object.castShadow = true;
+				  		object.scale.set(0.01, 0.01, 0.01);
+				  		object.position.set(-3, 0, 0);
+				  		object.rotation.x = -80;
+			      		scene.add( object );
+			      		obj_bb8 = object;
 				});
 
 				//Camera look at
@@ -111,7 +148,8 @@
 			function render() {
 				
 				requestAnimationFrame( render );
-				obj.rotation.y += 0.03;
+				obj_strooper.rotation.y += 0.03;
+				obj_bb8.rotation.y += 0.03;
 				renderer.render( scene, camera );
 			}
 		</script>
