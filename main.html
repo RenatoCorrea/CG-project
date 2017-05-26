@@ -93,10 +93,10 @@
 				container.appendChild( renderer.domElement );
 
 				//Grass ground
-				/*var loader = new THREE.TextureLoader();
+				var loader = new THREE.TextureLoader();
 				var groundTexture = loader.load( 'Textures/grasslight-big.jpg' );
 				groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
-				groundTexture.repeat.set( 1500, 1500 );
+				groundTexture.repeat.set( 1500, 1500);
 				groundTexture.anisotropy = 16;
 
 				var groundMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111, map: groundTexture } );
@@ -105,7 +105,7 @@
 				mesh.position.y = 0;
 				mesh.rotation.x = 0;
 				mesh.receiveShadow = true;
-				scene.add( mesh );*/
+				scene.add( mesh );
 
 
 				//ambient light
@@ -178,10 +178,7 @@
 			      		scene.add( object );
 			      		obj_bb8 = object;
 				});
-
-				//Camera look at
-				camera.lookAt(scene.position);
-
+				
 				window.addEventListener( 'resize', onWindowResize, false );
 
 			}
@@ -190,7 +187,6 @@
 
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
-
 				renderer.setSize( window.innerWidth, window.innerHeight );
 			}					
 
@@ -201,10 +197,27 @@
 
 			function render() {										
 				var delta = clock.getDelta();				
-				camera.position.x = Math.sin(clock.getElapsedTime())*3;
+				
+				camera.position.x = scene.position.x + 10 * Math.cos(clock.getElapsedTime());         
+				camera.position.y = scene.position.y + 10 * Math.sin(clock.getElapsedTime());
+
+
 				uniforms1.time.value += delta * 5;
 				obj_strooper.rotation.y += 0.03;
 				obj_bb8.rotation.y += 0.03;
+				
+/*				var m4 = new THREE.Matrix4;								
+				m4.set(	1, 0, 0, Math.sin(clock.getElapsedTime()), 
+						0, 1, 0, Math.cos(clock.getElapsedTime()), 
+						0, 0, 1, 0, 
+						0, 0, 0, 1);
+				var v4 = new THREE.Vector4(camera.position.x, camera.position.y, camera.position.z, 1);
+				v4.applyMatrix4(m4);
+				camera.position.set(v4);*/
+
+				camera.up.set(0, 0, 1);
+				camera.lookAt(scene.position);
+				
 				renderer.render( scene, camera );
 			}
 		</script>
