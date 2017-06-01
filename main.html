@@ -66,7 +66,7 @@
 
 				//Top Camera
 				topCamera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-				topCamera.position.set(0, 0, 15);
+				topCamera.position.set(0, 4, 15);
 
 				//Scene
 				scene = new THREE.Scene();
@@ -208,11 +208,9 @@
 					if(!down){
 					    if(e.which == 32 && atualCamera == 0){
 					    	atualCamera = 1
-					    	console.log(atualCamera);
 					    }
 					    else if(e.which == 32 && atualCamera == 1){
 					    	atualCamera = 0
-					    	console.log(atualCamera);
 					    }
 					    down = true;
 					}
