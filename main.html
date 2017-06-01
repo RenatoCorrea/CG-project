@@ -212,9 +212,10 @@
 				uniforms1.time.value += delta * 5;
 				obj_strooper.rotation.y += 0.03;
 				obj_bb8.rotation.y += 0.1;
+				obj_arc170.position.z = 4 * Math.cos(clock.getElapsedTime()) + 8;
 
-				var X = scene.position.x + 10 * Math.cos(0.5 * eTime); 						
-				var Y = scene.position.y + 10 * Math.sin(0.5 * eTime);				
+				var X = scene.position.x + 20 * Math.cos(0.5 * eTime); 						
+				var Y = scene.position.y + 20 * Math.sin(0.5 * eTime);				
 
 				var m4 = new THREE.Matrix4;		
 				m4.set(	0, 0, 0, X, 
