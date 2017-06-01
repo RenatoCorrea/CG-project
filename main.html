@@ -157,6 +157,17 @@
 			      		scene.add( object );
 			      		obj_bb8 = object;
 				});
+
+				//obj file - load Arc170				
+				var loader = new THREE.OBJLoader(); 						
+				loader.load('3DModels/Arc170/Arc170.obj', function ( object ) {
+						object.castShadow = true;	
+						object.scale.set(0.01, 0.01, 0.01);			  	
+				  		object.position.set(0, 5, 5);	
+				  		object.rotation.x = -80			  		
+			      		scene.add( object );
+			      		obj_arc170 = object;
+				});
 				
 				window.addEventListener( 'resize', onWindowResize, false );				
 
