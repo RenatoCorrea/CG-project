@@ -65,7 +65,7 @@
 				topCamera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 				topCamera.position.set(0, 4, 20);
 
-				//Further Camere
+				//Further Camera
 				furtherCamera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 				furtherCamera.position.set(0, -100, 3);
 
@@ -86,31 +86,24 @@
 				groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
 				groundTexture.repeat.set( 1500, 1500);
 				groundTexture.anisotropy = 16;
-
 				var groundMaterial = new THREE.MeshPhongMaterial( { color: 0x909090, specular: 0x111111, map: groundTexture } );
-
 				var mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 20000, 20000 ), groundMaterial );
-				mesh.position.y = 0;
-				mesh.rotation.x = 0;
 				mesh.receiveShadow = true;
+				mesh.castShadow = true;
 				scene.add( mesh );
 
 
+
 				//ambient light
-				var ambient = new THREE.AmbientLight(0xffffff);
+				var ambient = new THREE.AmbientLight(0x101010);
 				scene.add( ambient );
 
-				//Spotlight
-				var spotlight = new THREE.SpotLight(0xffffff);
-				spotlight.position.set(0, 0, 500);
-				spotlight.castShadow = true;
-				spotlight.shadow.mapSize.width = 1024;
-				spotlight.shadow.mapSize.height = 1024;		
-				spotlight.shadow.camera.near = 1;
-				spotlight.shadow.camera.far = 100;
-				spotlight.shadowCameraFOV = 75;
-				scene.add ( spotlight );
-				
+				//spotLight
+				spotLight = new THREE.SpotLight( 0xffffff, 2 );
+				spotLight.position.set(0, 100, 0);
+				spotLight.castShadow = true;
+				scene.add(spotLight);
+
 				/*
 				// Used in shaders
 				uniforms1 = {
@@ -170,6 +163,7 @@
 			        			loader.setPath('3DModels/'+name+'/');
 			        			loader.load(name+'.obj', function ( object ) {
 				        			object.castShadow = true;
+				        			object.receiveShadow = true;
 
 				        			// Scale
 			        				x = parseFloat(scaPath.find('x').text());
@@ -189,13 +183,23 @@
 			        				z = parseFloat(rotPath.find('z').text());
 			        				object.rotation.set(x,y,z);
 
+			        				//shadow
+			        				object.traverse( function ( child ) {
+									    if ( child instanceof THREE.Mesh ) {
+									        child.castShadow = true;
+									        child.receiveShadow = true;
+
+									    }
+
+									} );
+
 			        				scene.add(object);
 			        				objs.push(object);
 			        			});				        	
 				        	});
 				        });
 				    }
-				});							
+				});
 			}
 
 			function onWindowResize() {
@@ -223,9 +227,14 @@
 				//uniforms1.time.value += delta * 5;
 				objs[0].rotation.y += 0.03;
 				objs[1].rotation.y += 0.1;				
-				objs[2].position.x = scene.position.x + 100 * Math.cos(0.1 * eTime);
-				objs[2].position.z = scene.position.y + 100 * Math.sin(0.1 * eTime);	
+				objs[2].position.x = scene.position.x + 100 * Math.cos(0.5 * eTime);
+				objs[2].position.z = scene.position.z + 100 * Math.sin(0.5 * eTime);	
 				objs[3].position.z = 4 * Math.cos(eTime) + 8;
+
+				spotLight.position.y = scene.position.y + 100 * Math.cos(0.5 * eTime);
+				spotLight.position.z = scene.position.z + 100 * Math.sin(0.5 * eTime);
+				spotLight.lookAt(scene.position);
+
 
 				var X = scene.position.x + 20 * Math.cos(0.5 * eTime); 						
 				var Y = scene.position.y + 20 * Math.sin(0.5 * eTime);				
