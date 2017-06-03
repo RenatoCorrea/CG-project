@@ -82,7 +82,7 @@
 				// scene.add( mesh );
 
 				//Planet ground
-				planetRadius = 30;
+				planetRadius = 100;
 				var loader = new THREE.TextureLoader();
 				var groundTexture = loader.load( 'Textures/grasslight-big.jpg' );
 				groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
@@ -101,17 +101,17 @@
 				scene.add( ambient );
 
 				//spotLight - Sun
-				spotLight = new THREE.SpotLight( 0xffffff, 3 );
+				spotLight = new THREE.SpotLight( 0xffffff, 2 );
 				spotLight.position.set(0, 0, 0);
 				//Shadows
 				spotLight.castShadow = true;
 				spotLight.penumbra = 0.05;
-				spotLight.decay = 2;
-				spotLight.distance = 300;
+				spotLight.decay = 0.8;
+				spotLight.distance = 500;
 				spotLight.shadow.mapSize.width = 1024*4;
 				spotLight.shadow.mapSize.height = 1024*4;
 				spotLight.shadow.camera.near = 1;
-				spotLight.shadow.camera.far = 300;
+				spotLight.shadow.camera.far = 500;
 				scene.add(spotLight);
 
 				//Sun sphere
@@ -149,15 +149,15 @@
 				});*/			
 
 				//Rotating Camera
-				rotatingCamera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-				rotatingCamera.position.set(0, -10, 3+planetRadius);
+				rotatingCamera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 + planetRadius * 2 );
+				rotatingCamera.position.set(0, -10, 3 + planetRadius);
 
 				//Top Camera
-				topCamera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-				topCamera.position.set(0, 4+planetRadius, 200+planetRadius);
+				topCamera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 + planetRadius * 2);
+				topCamera.position.set(0, 4, 200+planetRadius);
 
 				//Further Camera
-				furtherCamera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+				furtherCamera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 + planetRadius * 2);
 				furtherCamera.position.set(0, -(100+planetRadius), 3+planetRadius);
 				
 				window.addEventListener( 'resize', onWindowResize, false );				
@@ -250,18 +250,22 @@
 			function render() {										
 				var delta = clock.getDelta();
 				var eTime = clock.getElapsedTime();
-				var velocity = 0.1;
+				var velocity = 0.01;
 
 				//uniforms1.time.value += delta * 5;
 				objs[0].rotation.y += 0.03;
-				objs[1].rotation.y += 0.1;				
+				objs[1].rotation.y += 0.1;
+
+				//Naboo rotation
+				var degree = 4 //sets naboo rotation arctan(degree) off of the spotlight rotation plane
 				objs[2].position.x = scene.position.x + 100 * Math.cos(velocity * eTime);
-				objs[2].position.y = scene.position.y + 100 * Math.cos(velocity * eTime);
+				objs[2].position.y = scene.position.y + (degree*100) * Math.cos(velocity * eTime);
 				objs[2].position.z = scene.position.z + 100 * Math.sin(velocity * eTime);	
+
 				objs[3].position.z = planetRadius + 4 * Math.cos(eTime) + 8;
 
-				spotLight.position.y = scene.position.y + 140 * Math.cos(velocity * eTime * 27.3);
-				spotLight.position.z = scene.position.z + 140 * Math.sin(velocity * eTime * 27.3);
+				spotLight.position.y = scene.position.y + (planetRadius + 140) * Math.cos(velocity * eTime * 27.3);
+				spotLight.position.z = scene.position.z + (planetRadius + 140) * Math.sin(velocity * eTime * 27.3);
 				spotLight.lookAt(scene.position);
 
 
@@ -276,13 +280,13 @@
 				
 				rotatingCamera.position.applyMatrix4(m4);
 				rotatingCamera.up.set(0, 0, 1);
-				rotatingCamera.lookAt(scene.position);	
+				rotatingCamera.lookAt(new THREE.Vector3(scene.position.x, scene.position.y, planetRadius));	
 
 				topCamera.up.set(0, 0, 1);
 				topCamera.lookAt(scene.position);
 
 				furtherCamera.up.set(0, 0, 1);
-				furtherCamera.lookAt(objs[3].position);
+				furtherCamera.lookAt(scene.position);
 
 				if (atualCamera == 0){
 					renderer.render( scene, rotatingCamera );
