@@ -218,6 +218,10 @@
 
 				rotatingCamera.aspect = window.innerWidth / window.innerHeight;
 				rotatingCamera.updateProjectionMatrix();
+				topCamera.aspect = window.innerWidth / window.innerHeight;
+				topCamera.updateProjectionMatrix();
+				furtherCamera.aspect = window.innerWidth / window.innerHeight;
+				furtherCamera.updateProjectionMatrix();
 				renderer.setSize( window.innerWidth, window.innerHeight );
 			}					
 
