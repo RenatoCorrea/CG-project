@@ -3,3 +3,5 @@ Projeto da disciplina de Computação grafica dos alunos Pedro Pires e Renato Co
 
 # Documentation
   three.js é uma biblioteca para Javascript que procura simplificar o webGL.
+
+## Use space to change between cameras
