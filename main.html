@@ -242,8 +242,11 @@
 
 				//uniforms1.time.value += delta * 5;
 				objs[0].rotation.y += 0.03;
-				objs[1].rotation.y += 0.1;				
-				objs[2].position.x = scene.position.x + 100 * Math.cos(velocity * eTime);
+				objs[1].rotation.y += 0.1;
+
+				var angle = 0.25 //sets naboo rotation off of the spotlight rotation plane by arctan(angle)
+				var angleVariation = Math.cos(velocity * eTime * 0.1); //sets Naboo rotation plane variation overtime
+				objs[2].position.x = scene.position.x + 100 * Math.cos(velocity * eTime) * angle * angleVariation;
 				objs[2].position.y = scene.position.y + 100 * Math.cos(velocity * eTime);
 				objs[2].position.z = scene.position.z + 100 * Math.sin(velocity * eTime);	
 				objs[3].position.z = 4 * Math.cos(eTime) + 8;
