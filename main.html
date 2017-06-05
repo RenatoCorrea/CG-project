@@ -82,8 +82,8 @@
 				container.appendChild( renderer.domElement );
 
 				//Grass ground
-				var loader = new THREE.TextureLoader();
-				var groundTexture = loader.load( 'Textures/grasslight-big.jpg' );
+				var textureLoader = new THREE.TextureLoader();
+				var groundTexture = textureLoader.load( 'Textures/grasslight-big.jpg' );
 				groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
 				groundTexture.repeat.set( 1500, 1500);
 				groundTexture.anisotropy = 16;
@@ -114,6 +114,26 @@
 				//Sun sphere
 				var sphere = new THREE.SphereGeometry( 10, 16, 8 );
 				spotLight.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xfff16c } ) ) );;
+
+				//Adds lensFlare
+
+				// var textureFlare0 = textureLoader.load( "Textures/lensflare/lensflare0.png" );
+				// var textureFlare2 = textureLoader.load( "Textures/lensflare/lensflare2.png" );
+				// var textureFlare3 = textureLoader.load( "Textures/lensflare/lensflare3.png" );
+				// lensFlare = new THREE.LensFlare( textureFlare0, 1024, 0.0);
+
+				// lensFlare.add( textureFlare2, 512, 0.0 );
+				// lensFlare.add( textureFlare2, 512, 0.0 );
+				// lensFlare.add( textureFlare2, 512, 0.0 );
+
+				// lensFlare.add( textureFlare3, 64, 0.6 );
+				// lensFlare.add( textureFlare3, 64, 0.7 );
+				// lensFlare.add( textureFlare3, 128, 0.9 );
+				// lensFlare.add( textureFlare3, 64, 1.0 );
+				// lensFlare.customUpdateCallback = lensFlareUpdateCallback;
+				// lensFlare.position.set(0, 0, 1);
+				// scene.add( lensFlare );
+
 
 				/*
 				// Used in shaders
@@ -208,7 +228,15 @@
 
 			        				scene.add(object);
 			        				objs.push(object);
-			        			});				        	
+
+			        				console.log(name, "finished loading");
+			        			}, function onProgress(xhr){
+			        				if(xhr.loaded == 0){
+			        					console.log( 'loading', name );
+			        				}
+			        				else
+										console.log( name, (xhr.loaded / xhr.total * 100) + '% loaded' );
+								});				        	
 				        	});
 				        });
 				    }
@@ -232,12 +260,37 @@
 			}
 
 			function keyManager(event){
+				var sens = 0.01
 				if(event.keyCode == 32)
 					atualCamera = (atualCamera + 1) % 3;
 				else if(event.keyCode == 107)
-					velocity += 0.05;
-				else if(event.keyCode == 109 && velocity > 0.05)
-					velocity -= 0.05;
+					velocity += sens;
+				else if(event.keyCode == 109 && velocity > sens)
+					velocity -= sens;
+			}
+
+			function lensFlareUpdateCallback( object ) {
+
+				var f, fl = object.lensFlares.length;
+				var flare;
+				var vecX = -object.positionScreen.x * 2;
+				var vecY = -object.positionScreen.y * 2;
+
+
+				for( f = 0; f < fl; f++ ) {
+
+					flare = object.lensFlares[ f ];
+
+					flare.x = object.positionScreen.x + vecX * flare.distance;
+					flare.y = object.positionScreen.y + vecY * flare.distance;
+
+					flare.rotation = 0;
+
+				}
+
+				object.lensFlares[ 2 ].y += 0.025;
+				object.lensFlares[ 3 ].rotation = object.positionScreen.x * 0.5 + THREE.Math.degToRad( 45 );
+
 			}
 			
 			function render() {										
@@ -258,7 +311,7 @@
 
 				spotLight.position.y = scene.position.y + 140 * Math.cos(velocity * eTime * 27.3);
 				spotLight.position.z = scene.position.z + 140 * Math.sin(velocity * eTime * 27.3);
-				spotLight.lookAt(scene.position);
+				//lensFlare.position.copy(spotLight.position);
 
 
 				var X = scene.position.x + 20 * Math.cos(0.5 * eTime); 						
@@ -268,7 +321,7 @@
 				m4.set(	0, 0, 0, X, 
 						0, 0, 0, Y, 
 						0, 0, 1, 0, 
-						0, 0, 0, 1);				
+						0, 0, 0, 1);
 				
 				rotatingCamera.position.applyMatrix4(m4);
 				rotatingCamera.up.set(0, 0, 1);
