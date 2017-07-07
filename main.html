@@ -226,7 +226,7 @@
 			function loadObjs() {	
 				$.ajax({
 				    type: "GET",
-				    url: "Config/Models.xml",
+				    url: "file:///home/renato/Documentos/Disciplina/CG/CG-project/Config/Models.xml",
 				    dataType: "xml",
 				    cache: false,
 				    async: false,
@@ -238,9 +238,9 @@
 				        	var rotPath = $(this).find('Rotation');
 				        	var x, y, z;
 
-				        	var mtlLoader = new THREE.MTLLoader();
-				        	mtlLoader.setPath('3DModels/'+name+'/');						
-							mtlLoader.load(name+'.mtl', function( materials ){
+				        	var mtlL = new THREE.MTLLoader();
+				        	mtlL.setPath('3DModels/'+name+'/');						
+							mtlL.load(name+'.mtl', function( materials ){
 								materials.preload();
 				        		loader = new THREE.OBJLoader();
 				        		loader.setMaterials(materials);
