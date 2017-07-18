@@ -11,6 +11,7 @@
 		<script src="js/OBJLoader.js"></script>
 		<script src="js/MTLLoader.js"></script>
 		<script src="js/Detector.js"></script>
+		<script src="js/TrackballControls.js"></script>
 
 		<script id="vs_BB8" type="x-shader/x-vertex">
 		    varying vec2 vUv;
@@ -215,7 +216,17 @@
 
 				//Camera Arc
 				cameraArc = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 + planetRadius * 2);
-				
+
+				controls = new THREE.TrackballControls( cameraTop );
+
+				controls.rotateSpeed = 2.0;
+				controls.zoomSpeed = 2.0;
+				controls.panSpeed = 2.0;
+
+				controls.staticMoving = true;
+
+				controls.target.set(3, 0, 1+planetRadius)
+
 				window.addEventListener( 'resize', onWindowResize, false );				
 				window.addEventListener( 'keydown', keyManager );
 
@@ -297,11 +308,14 @@
 				cameraTop.updateProjectionMatrix();
 				cameraSide.aspect = window.innerWidth / window.innerHeight;
 				cameraSide.updateProjectionMatrix();
+				cameraArc.aspect = window.innerWidth / window.innerHeight;
+				cameraArc.updateProjectionMatrix();
 				renderer.setSize( window.innerWidth, window.innerHeight );
 			}					
 
 			function animate() {												
-				requestAnimationFrame( animate );				
+				requestAnimationFrame( animate );
+				controls.update();			
 				render();
 			}
 
@@ -363,8 +377,8 @@
 				cameraRotate.up.set(0, 0, 1);
 				cameraRotate.lookAt(new THREE.Vector3(scene.position.x, scene.position.y, planetRadius));	
 
-				cameraTop.up.set(0, 0, 1);
-				cameraTop.lookAt(scene.position);
+				//cameraTop.up.set(0, 0, 1);
+				//cameraTop.lookAt(scene.position);
 
 				cameraFurther.up.set(0, 0, 1);
 				cameraFurther.lookAt(scene.position);
