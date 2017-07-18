@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModelList>
 	<Model>		
-		<Name>Stormtrooper</Name>
+		<Name>StormtrooperEP7</Name>
 		<Scale>
-			<x>1</x>
-			<y>1</y>
-			<z>1</z>
+			<x>0.001</x>
+			<y>0.001</y>
+			<z>0.001</z>
 		</Scale>
 		<Position>
 			<x>3</x>

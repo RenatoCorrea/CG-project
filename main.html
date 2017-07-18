@@ -43,7 +43,7 @@
 			var uniforms;			
 			var atualCamera = 0;
 			var velocity = 0.05; // set general rotation velocity			
-			objs = [];
+			objs = {};
 			curve_counter = 0;
 			curve_index = 0;
 
@@ -228,8 +228,8 @@
 				    type: "GET",
 				    url: "Config/Models.xml",
 				    dataType: "xml",
-				    cache: false,
 				    async: false,
+				    cache: false,	
 				    success: function (xml) {			       			    	
 				        $(xml).find("Model").each(function() {
 				        	var name = $(this).find('Name').text();	
@@ -248,6 +248,7 @@
 			        			loader.load(name+'.obj', function ( object ) {
 				        			object.castShadow = true;
 				        			object.receiveShadow = true;
+				        			object.name = name;
 
 				        			// Scale
 			        				x = parseFloat(scaPath.find('x').text());
@@ -278,7 +279,7 @@
 									} );
 
 			        				scene.add(object);
-			        				objs.push(object);
+			        				objs[object.name] = object;
 			        			});				        	
 				        	});
 				        });
@@ -319,25 +320,25 @@
 				
 
 				//uniforms1.time.value += delta * 5;
-				//Stormtrooper
-				objs[0].rotation.y += 0.03;
+				//[Stormtrooper]
+				objs["StormtrooperEP7"].rotation.y += 0.03;
 				//BB8
-				objs[1].rotation.y += 0.1;
+				objs["BB8"].rotation.y += 0.1;
 
 				//Naboo rotation
 				var angle = 0.25 //sets naboo rotation off of the spotlight rotation plane by arctan(angle)
 				var angleVariation = Math.cos(velocity * eTime * 0.1); //sets Naboo rotation plane variation overtime
-				objs[2].position.x = scene.position.x + (80+planetRadius) * Math.cos(velocity * eTime) * angle * angleVariation;
-				objs[2].position.y = scene.position.y + (80+planetRadius) * Math.cos(velocity * eTime);
-				objs[2].position.z = scene.position.z + (80+planetRadius) * Math.sin(velocity * eTime);	
+				objs["Naboo"].position.x = scene.position.x + (80+planetRadius) * Math.cos(velocity * eTime) * angle * angleVariation;
+				objs["Naboo"].position.y = scene.position.y + (80+planetRadius) * Math.cos(velocity * eTime);
+				objs["Naboo"].position.z = scene.position.z + (80+planetRadius) * Math.sin(velocity * eTime);	
 
 				//Arc170
-				//objs[3].position.z = planetRadius + 4 * Math.cos(eTime) + 8;
+				//objs["Arc170"].position.z = planetRadius + 4 * Math.cos(eTime) + 8;
 				var t = curves[curve_index].getUtoTmapping(curve_counter / 100);
-				objs[3].position.set(curves[curve_index].getPointAt(t).x, curves[curve_index].getPointAt(t).y, curves[curve_index].getPointAt(t).z);
-    			//objs[3].rotation.set(curves[curve_index].getTangent(t).normalize().x -80, curves[curve_index].getTangent(t).normalize().y, curves[curve_index].getTangent(t).normalize().z);
-    			objs[3].up.set(0,0,1);
-    			objs[3].lookAt(curves[curve_index].getPointAt(curves[curve_index].getUtoTmapping((curve_counter+0.5) / 100)));    			
+				objs["Arc170"].position.set(curves[curve_index].getPointAt(t).x, curves[curve_index].getPointAt(t).y, curves[curve_index].getPointAt(t).z);
+    			//objs["Arc170"].rotation.set(curves[curve_index].getTangent(t).normalize().x -80, curves[curve_index].getTangent(t).normalize().y, curves[curve_index].getTangent(t).normalize().z);
+    			objs["Arc170"].up.set(0,0,1);
+    			objs["Arc170"].lookAt(curves[curve_index].getPointAt(curves[curve_index].getUtoTmapping((curve_counter+0.5) / 100)));    			
     			curve_counter += 0.5 ;
     			if (curve_counter == 100) {
     				curve_counter = 0;
@@ -373,7 +374,7 @@
 
 				cameraArc.up.set(0, 0, 1);
 				cameraArc.lookAt(curves[curve_index].getPointAt(curves[curve_index].getUtoTmapping((curve_counter+0.5) / 100))); 
-				cameraArc.position.copy(objs[3].position);
+				cameraArc.position.copy(objs["Arc170"].position);
 
 				if (atualCamera == 0){
 					renderer.render( scene, cameraRotate );
