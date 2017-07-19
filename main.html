@@ -119,85 +119,21 @@
 					new THREE.Vector3(-P[0],-P[0],P[1]), new THREE.Vector3(-P[0],P[0],P[1]), new THREE.Vector3(P[0],-P[0],P[1]), new THREE.Vector3( P[0],P[0],P[1]),
 					new THREE.Vector3(-P[0],P[1],P[0]), new THREE.Vector3(-P[0],P[1],-P[0]), new THREE.Vector3(P[0],P[1],P[0]), new THREE.Vector3(P[0],P[1],-P[0]), 
 					new THREE.Vector3(-P[0],P[0],-P[1]), new THREE.Vector3(-P[0],-P[0],-P[1]), new THREE.Vector3(P[0],P[0],-P[1]), new THREE.Vector3(P[0],-P[0],-P[1]), 
-					new THREE.Vector3(-P[0],-P[1],-P[0]), new THREE.Vector3(-P[0],-P[1],P[0]), new THREE.Vector3(P[0],-P[1],-P[0]), new THREE.Vector3(P[0],-P[1],P[0]), 
-				]				
+					new THREE.Vector3(-P[0],-P[1],-P[0]), new THREE.Vector3(-P[0],-P[1],P[0]), new THREE.Vector3(P[0],-P[1],-P[0]), new THREE.Vector3(P[0],-P[1],P[0])
+				];			
 
 				// Draw curves
-				curves = [];
-
-				curve = new THREE.CubicBezierCurve3(CP[0], CP[1], CP[2], CP[3]);						
-				var geometry = new THREE.Geometry();
-				geometry.vertices = curve.getPoints( 50 );
-				var material = new THREE.LineBasicMaterial( { color : 0x00ff00 } );
-				// Create the final object to add to the scene
-				var curveObject = new THREE.Line( geometry, material );
-				scene.add(curveObject);
-				curves.push(curve);
-
-				curve = new THREE.CubicBezierCurve3(CP[3], CP[6], CP[1], CP[4]);						
-				var geometry = new THREE.Geometry();
-				geometry.vertices = curve.getPoints( 50 );
-				var material = new THREE.LineBasicMaterial( { color : 0x00ff00 } );
-				// Create the final object to add to the scene
-				var curveObject = new THREE.Line( geometry, material );
-				scene.add(curveObject);
-				curves.push(curve);
-
-				curve = new THREE.CubicBezierCurve3(CP[4], CP[5], CP[6], CP[7]);
-				var geometry = new THREE.Geometry();
-				geometry.vertices = curve.getPoints( 50 );
-				var material = new THREE.LineBasicMaterial( { color : 0x00ff00 } );
-				// Create the final object to add to the scene
-				var curveObject = new THREE.Line( geometry, material );
-				scene.add(curveObject);
-				curves.push(curve);
-
-				curve = new THREE.CubicBezierCurve3(CP[7], CP[10], CP[5], CP[8]);						
-				var geometry = new THREE.Geometry();
-				geometry.vertices = curve.getPoints( 50 );
-				var material = new THREE.LineBasicMaterial( { color : 0x00ff00 } );
-				// Create the final object to add to the scene
-				var curveObject = new THREE.Line( geometry, material );
-				scene.add(curveObject);
-				curves.push(curve);
-
-				curve = new THREE.CubicBezierCurve3(CP[8], CP[9], CP[10], CP[11]);			
-				var geometry = new THREE.Geometry();
-				geometry.vertices = curve.getPoints( 50 );
-				var material = new THREE.LineBasicMaterial( { color : 0x00ff00 } );
-				// Create the final object to add to the scene
-				var curveObject = new THREE.Line( geometry, material );
-				scene.add(curveObject);
-				curves.push(curve);
-
-				curve = new THREE.CubicBezierCurve3(CP[11], CP[14], CP[9], CP[12]);						
-				var geometry = new THREE.Geometry();
-				geometry.vertices = curve.getPoints( 50 );
-				var material = new THREE.LineBasicMaterial( { color : 0x00ff00 } );
-				// Create the final object to add to the scene
-				var curveObject = new THREE.Line( geometry, material );
-				scene.add(curveObject);
-				curves.push(curve);
-
-				curve = new THREE.CubicBezierCurve3(CP[12], CP[13], CP[14], CP[15]);			
-				var geometry = new THREE.Geometry();
-				geometry.vertices = curve.getPoints( 50 );
-				var material = new THREE.LineBasicMaterial( { color : 0x00ff00 } );
-				// Create the final object to add to the scene
-				var curveObject = new THREE.Line( geometry, material );
-				scene.add(curveObject);
-				curves.push(curve);
-
-				curve = new THREE.CubicBezierCurve3(CP[15], CP[2], CP[13], CP[0]);			
-				var geometry = new THREE.Geometry();
-				geometry.vertices = curve.getPoints( 50 );
-				var material = new THREE.LineBasicMaterial( { color : 0x00ff00 } );
-				// Create the final object to add to the scene
-				var curveObject = new THREE.Line( geometry, material );
-				scene.add(curveObject);
-				curves.push(curve);
+				curves = [
+					new THREE.CubicBezierCurve3(CP[0], CP[1], CP[2], CP[3]),
+					new THREE.CubicBezierCurve3(CP[3], CP[6], CP[1], CP[4]),
+					new THREE.CubicBezierCurve3(CP[4], CP[5], CP[6], CP[7]),
+					new THREE.CubicBezierCurve3(CP[7], CP[10], CP[5], CP[8]),
+					new THREE.CubicBezierCurve3(CP[8], CP[9], CP[10], CP[11]),
+					new THREE.CubicBezierCurve3(CP[11], CP[14], CP[9], CP[12]),
+					new THREE.CubicBezierCurve3(CP[12], CP[13], CP[14], CP[15]),
+					new THREE.CubicBezierCurve3(CP[15], CP[2], CP[13], CP[0])
+				];
 				
-
 				/*
 				// Used in shaders
 				uniforms1 = {
