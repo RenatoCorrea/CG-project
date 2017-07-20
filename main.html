@@ -14,8 +14,22 @@
 		<script src="js/TrackballControls.js"></script>
 		<script src="js/THREEx.KeyboardState.js"></script>
 
-		<script id="vs_BB8" type="x-shader/x-vertex">
-		    varying vec2 vUv;
+		<script id="fs_Sun" type="x-shader/x-fragment">
+			uniform float time;
+			uniform vec2 resolution;
+			varying vec2 vUv;
+			void main( void ) {
+				vec2 position = -1.0 + 2.0 * vUv;
+				float red = abs( sin( position.x * position.y + time / 5.0 ) );
+				float green = red;
+				float blue = abs( sin( position.x * position.y + time / 3.0 ) );
+				gl_FragColor = vec4( red, green, blue, 1.0 );
+			}
+
+		</script>
+
+		<script id="vs_Sun" type="x-shader/x-vertex">
+			varying vec2 vUv;
 			void main()
 			{
 				vUv = uv;
@@ -23,19 +37,6 @@
 				gl_Position = projectionMatrix * mvPosition;
 			}
 		</script>
-
-		<script id="fs_BB8" type="x-shader/x-fragment">
-	        uniform float time;
-			uniform vec2 resolution;
-			varying vec2 vUv;
-			void main( void ) {
-				vec2 position = -1.0 + 2.0 * vUv;
-				float red = abs( sin( position.x * position.y + time / 5.0 ) );
-				float green = abs( sin( position.x * position.y + time / 4.0 ) );
-				float blue = abs( sin( position.x * position.y + time / 3.0 ) );
-				gl_FragColor = vec4( red, green, blue, 1.0 );
-			}
-    	</script>
 
 		<script>
 			var cameraRotate, cameraTop, cameraFurther, cameraSide, cameraArc, cameraBB8, scene, renderer;
@@ -89,7 +90,7 @@
 				groundTexture.repeat.set( 1500, 1500);
 				groundTexture.anisotropy = 16;
 				var groundMaterial = new THREE.MeshPhongMaterial( { color: 0x909090, specular: 0x111111, map: groundTexture } );
-				mesh = new THREE.Mesh( new THREE.SphereGeometry( planetRadius, 64, 32 )/*new THREE.SphereGeometry(30, 16, 8)*/, groundMaterial );
+				mesh = new THREE.Mesh( new THREE.SphereGeometry( planetRadius, 64, 32 ), groundMaterial );
 				mesh.receiveShadow = true;
 				mesh.castShadow = true;
 				scene.add( mesh );
@@ -115,8 +116,21 @@
 				scene.add(spotLight);
 
 				//Sun sphere
+				// uniforms = {
+				// 	time:       { value: 1.0 },
+				// 	resolution: { value: new THREE.Vector2() },
+				// };
+
+				// material = new THREE.ShaderMaterial( {
+				// 	uniforms: uniforms,
+				// 	vertexShader: document.getElementById( 'vs_Sun' ).textContent,
+				// 	fragmentShader: document.getElementById( 'fs_Sun' ).textContent
+				// } );
+
 				var sphere = new THREE.SphereGeometry( 10, 16, 8 );
-				spotLight.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xfff16c } ) ) );;
+				spotLight.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xfff16c } ) ) );
+				//mesh = new THREE.Mesh( sphere, material );
+				//spotLight.add( mesh );
 
 				//BezierCurve
 				curves = [];
@@ -227,6 +241,8 @@
 
 				//Camera BB8
 				cameraBB8 = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 + planetRadius * 2);
+				cameraBB8.position.set(2, 0.5, planetRadius+3);
+				containerBB8.add(cameraBB8);
 				
 
 				controls = new THREE.TrackballControls( cameraTop );
@@ -351,19 +367,27 @@
 			function render() {										
 				var delta = clock.getDelta();
 				var eTime = clock.getElapsedTime();
+				var walkVel = 0.08
+				var turnVel = 1.5
 				var moveDistance = 1 * delta;
 
 				if ( keyboard.pressed("W") ){
-					containerBB8.rotateY(-moveDistance*1);
+					containerBB8.rotateY(-moveDistance*walkVel);
 				}
 				if ( keyboard.pressed("S") ){
-					containerBB8.rotateY(moveDistance*1);
+					containerBB8.rotateY(moveDistance*walkVel);
 				}
 				if ( keyboard.pressed("A") ){
-					containerBB8.rotateX(moveDistance*1);
+					containerBB8.rotateX(moveDistance*walkVel);
 				}
 				if ( keyboard.pressed("D") ){
-					containerBB8.rotateX(-moveDistance*1);
+					containerBB8.rotateX(-moveDistance*walkVel);
+				}
+				if ( keyboard.pressed("Q")){
+					containerBB8.rotateZ(moveDistance*turnVel);
+				}
+				if ( keyboard.pressed("E")){
+					containerBB8.rotateZ(-moveDistance*turnVel);
 				}
 
 				
@@ -421,18 +445,12 @@
 				cameraSide.up.set(0, 0, 1);
 				cameraSide.lookAt(scene.position);
 
+				cameraBB8.up.set(0, 0, 1);
+				cameraBB8.lookAt(new THREE.Vector3(-3, 0, planetRadius+1));
+
 				cameraArc.up.set(0, 0, 1);
 				cameraArc.lookAt(curves[curve_index].getPointAt(curves[curve_index].getUtoTmapping((curve_counter+0.5) / 100))); 
 				cameraArc.position.copy(objs["Arc170"].position);
-
-				var relativeCameraOffset = new THREE.Vector3(200,200,0);
-
-				var cameraOffset = relativeCameraOffset.applyMatrix4( objs["BB8"].matrixWorld );
-
-				cameraBB8.position.x = cameraOffset.x;
-				cameraBB8.position.y = cameraOffset.y;
-				cameraBB8.position.z = cameraOffset.z;
-				cameraBB8.lookAt( objs["BB8"].getWorldPosition() );
 
 				if (atualCamera == 0){
 					renderer.render( scene, cameraRotate );
