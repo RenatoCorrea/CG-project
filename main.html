@@ -86,7 +86,7 @@
 			var objs = {};			
 			var curve_counter = 0;
 			var curve_index = 0;
-			var frame_index = 0;
+			var frame_index = 0;			
 
 			if (Detector.webgl) {
 				// Create the scene
@@ -316,7 +316,7 @@
 				var loader = new THREE.JSONLoader();
     			loader.load('3DModels/Stormtrooper/Stormtrooper.json', function(geometry, materials) {
         			mesh = new THREE.Mesh(geometry, materials);			        
-			        mesh.rotation.x = -80.1;        
+			        mesh.rotation.x = -80.1;        			       
 			        mesh.position.set(3,0,planetRadius);			        
 			        mesh.geometry.dynamic = true;
 			        scene.add(mesh);  
@@ -367,10 +367,11 @@
 				var moveDistance = 1 * delta;
 
 				// ======================================= Stormtrooper =======================================	
-				var StormtrooperWalkVel = 0.05;
+				var StormtrooperWalkVel = 0.04;				
 
 				// Rotate stormtrooper
-				containerStormtrooper.rotateX(moveDistance * StormtrooperWalkVel);
+				containerStormtrooper.rotateX(moveDistance * StormtrooperWalkVel);				
+				
 
 				// Update vertices to animate the model
 				for (var c = 0; c < mesh.geometry.vertices.length; c++)    	
@@ -379,17 +380,20 @@
 			    mesh.geometry.verticesNeedUpdate = true;
 
 				// ======================================= BB8 =======================================				
-				var BB8WalkVel = 0.08
-				var turnVel = 1.5
+				var BB8WalkVel = 0.08;
+				var turnVel = 1.5;
 
+				// Detects colision
 				firstBB = new THREE.Box3().setFromObject(objs["BB8"]);
-				secondBB = new THREE.Box3().setFromObject(objs["Stormtrooper"]);
-				var collision = firstBB.intersectsBox(secondBB);
+				secondBB = new THREE.Box3().setFromObject(objs["Stormtrooper"]);						
+				if (firstBB.intersectsBox(secondBB)) {
+					containerStormtrooper.rotateY(moveDistance * StormtrooperWalkVel);
+					containerBB8.rotateY(-moveDistance * BB8WalkVel);
+				}
 
-				console.log(collision);
 				// Change BB8 position according to pressed button
 				if ( keyboard.pressed("W") ){
-					containerBB8.rotateY(-moveDistance*BB8WalkVel);
+					containerBB8.rotateY(-moveDistance*BB8WalkVel);					
 				}
 				if ( keyboard.pressed("S") ){
 					containerBB8.rotateY(moveDistance*BB8WalkVel);
