@@ -17,24 +17,61 @@
 		<script id="fs_Sun" type="x-shader/x-fragment">
 			uniform float time;
 			uniform vec2 resolution;
+
+			uniform float fogDensity;
+			uniform vec3 fogColor;
+
+			uniform sampler2D texture1;
+			uniform sampler2D texture2;
+
 			varying vec2 vUv;
+
 			void main( void ) {
-				vec2 position = -1.0 + 2.0 * vUv;
-				float red = abs( sin( position.x * position.y + time / 5.0 ) );
-				float green = red;
-				float blue = abs( sin( position.x * position.y + time / 3.0 ) );
-				gl_FragColor = vec4( red, green, blue, 1.0 );
+
+				vec2 position = -1.0 + 4.0 * vUv;
+
+				vec4 noise = texture2D( texture1, vUv );
+				vec2 T1 = vUv + vec2( 1.5, -1.5 ) * time  *0.02;
+				vec2 T2 = vUv + vec2( -0.5, 2.0 ) * time * 0.01;
+
+				T1.x += noise.x * 2.0;
+				T1.y += noise.y * 2.0;
+				T2.x -= noise.y * 0.2;
+				T2.y += noise.z * 0.2;
+
+				float p = texture2D( texture1, T1 * 3.0 ).a;
+
+				vec4 color = texture2D( texture2, T2 * 2.0 );
+				vec4 temp = color * ( vec4( p, p, p, p ) * 2.0 ) + ( color * color - 0.1 );
+
+				if( temp.r > 1.0 ){ temp.bg += clamp( temp.r - 2.0, 0.0, 100.0 ); }
+				if( temp.g > 1.0 ){ temp.rb += temp.g - 1.0; }
+				if( temp.b > 1.0 ){ temp.rg += temp.b - 1.0; }
+
+				gl_FragColor = temp;
+
+				float depth = gl_FragCoord.z / gl_FragCoord.w;
+				const float LOG2 = 1.442695;
+				float fogFactor = exp2( - fogDensity * fogDensity * depth * depth * LOG2 );
+				fogFactor = 1.0 - clamp( 1.0 , 0.0, 1.0 );
+
+				gl_FragColor = mix( gl_FragColor, vec4( fogColor, gl_FragColor.w ), fogFactor );
+
 			}
 
 		</script>
 
 		<script id="vs_Sun" type="x-shader/x-vertex">
+			uniform vec2 uvScale;
 			varying vec2 vUv;
+
 			void main()
 			{
-				vUv = uv;
+
+				vUv = uvScale * uv;
 				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 				gl_Position = projectionMatrix * mvPosition;
+
 			}
 		</script>
 
@@ -104,7 +141,7 @@
 				//spotLight - Sun
 				spotLight = new THREE.SpotLight( 0xffffff, 2 );
 				spotLight.position.set(0, 0, 500);
-				//Shadows
+					//Shadows
 				spotLight.castShadow = true;
 				spotLight.penumbra = 0.05;
 				spotLight.decay = 0.8;
@@ -116,21 +153,32 @@
 				scene.add(spotLight);
 
 				//Sun sphere
-				// uniforms = {
-				// 	time:       { value: 1.0 },
-				// 	resolution: { value: new THREE.Vector2() },
-				// };
+				var textureLoader = new THREE.TextureLoader();
 
-				// material = new THREE.ShaderMaterial( {
-				// 	uniforms: uniforms,
-				// 	vertexShader: document.getElementById( 'vs_Sun' ).textContent,
-				// 	fragmentShader: document.getElementById( 'fs_Sun' ).textContent
-				// } );
+				uniforms = {
+					fogColor:   { value: new THREE.Vector3( 0, 0, 0 ) },
+					time:       { value: 1.0 },
+					resolution: { value: new THREE.Vector2() },
+					uvScale:    { value: new THREE.Vector2( 3.0, 1.0 ) },
+					texture1:   { value: textureLoader.load( "Textures/cloud.png" ) },
+					texture2:   { value: textureLoader.load( "Textures/lavatile.jpg" ) }
+
+				};
+				uniforms.texture1.value.wrapS = uniforms.texture1.value.wrapT = THREE.RepeatWrapping;
+				uniforms.texture2.value.wrapS = uniforms.texture2.value.wrapT = THREE.RepeatWrapping;
+
+				var material = new THREE.ShaderMaterial( {
+
+					uniforms: uniforms,
+					vertexShader: document.getElementById( 'vs_Sun' ).textContent,
+					fragmentShader: document.getElementById( 'fs_Sun' ).textContent
+
+				} );
 
 				var sphere = new THREE.SphereGeometry( 10, 16, 8 );
-				spotLight.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xfff16c } ) ) );
-				//mesh = new THREE.Mesh( sphere, material );
-				//spotLight.add( mesh );
+				//spotLight.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xfff16c } ) ) );
+				mesh = new THREE.Mesh( sphere, material );
+				spotLight.add( mesh );
 
 				//BezierCurve
 				curves = [];
@@ -188,37 +236,7 @@
 				scene.add(curveObject);
 
 				curves.push(curve);
-
-
-				/*
-				// Used in shaders
-				uniforms1 = {
-					time:       { value: 1.0 },
-					resolution: { value: new THREE.Vector2() }
-				};			
-				
-				//obj file - load BB8
-				loader = new THREE.OBJLoader(); 
-				loader.load('3DModels/BB8/BB8.obj',	function ( object ) {
-
-						var bb8Material = new THREE.ShaderMaterial({								
-							uniforms : uniforms1,
-				   			vertexShader: document.getElementById('vs_BB8').innerHTML,
-				   			fragmentShader: document.getElementById('fs_BB8').innerHTML
-						});	
-
-						object.traverse( function ( child ) {
-				        	if ( child instanceof THREE.Mesh ) {				        		
-				            	child.material = bb8Material;
-				        	}				        	
-				    	});
-			  						  		
-				  		object.scale.set(0.01, 0.01, 0.01);
-				  		object.position.set(-3, 0, 0);
-				  		object.rotation.x = -80;
-			      		scene.add( object );
-			      		obj_bb8 = object;
-				});*/			
+		
 
 				//Rotating Camera
 				cameraRotate = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 + planetRadius * 2 );
@@ -389,7 +407,6 @@
 				if ( keyboard.pressed("E")){
 					containerBB8.rotateZ(-moveDistance*turnVel);
 				}
-
 				
 
 				//uniforms1.time.value += delta * 5;
@@ -420,6 +437,7 @@
 
 				spotLight.position.y = scene.position.y + (planetRadius + 150) * Math.cos(velocity * eTime * 27.3 * 0.1);
 				spotLight.position.z = scene.position.z + (planetRadius + 150) * Math.sin(velocity * eTime * 27.3 * 0.1	);
+				uniforms.time.value += 2*delta;
 				spotLight.lookAt(scene.position);
 
 
