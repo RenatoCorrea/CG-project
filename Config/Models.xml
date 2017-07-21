@@ -1,23 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ModelList>
-	<Model>		
-		<Name>StormtrooperEP7</Name>
-		<Scale>
-			<x>0.001</x>
-			<y>0.001</y>
-			<z>0.001</z>
-		</Scale>
-		<Position>
-			<x>3</x>
-			<y>0</y>
-			<z>0</z>
-		</Position>		
-		<Rotation>
-			<x>-80.1</x>
-			<y>0</y>
-			<z>0</z>
-		</Rotation>
-	</Model>
+<ModelList>	
 	<Model>		
 		<Name>BB8</Name>
 		<Scale>
