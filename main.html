@@ -302,6 +302,7 @@
 			        				objs[object.name] = object;
 			        				if(object.name.localeCompare("BB8") == 0){
 					        			containerBB8.add(objs["BB8"]);
+					        			
 				        			}
 			        			});				        	
 				        	});					       
@@ -321,6 +322,7 @@
 			        scene.add(mesh);  
 			        containerStormtrooper.add(mesh);
 			        objs["Stormtrooper"] = mesh;
+			        
     			});
 			}
 
@@ -379,7 +381,12 @@
 				// ======================================= BB8 =======================================				
 				var BB8WalkVel = 0.08
 				var turnVel = 1.5
-				
+
+				firstBB = new THREE.Box3().setFromObject(objs["BB8"]);
+				secondBB = new THREE.Box3().setFromObject(objs["Stormtrooper"]);
+				var collision = firstBB.intersectsBox(secondBB);
+
+				console.log(collision);
 				// Change BB8 position according to pressed button
 				if ( keyboard.pressed("W") ){
 					containerBB8.rotateY(-moveDistance*BB8WalkVel);
