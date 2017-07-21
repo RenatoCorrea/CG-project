@@ -27,7 +27,6 @@
 			varying vec2 vUv;
 
 			void main( void ) {
-
 				vec2 position = -1.0 + 4.0 * vUv;
 
 				vec4 noise = texture2D( texture1, vUv );
@@ -56,32 +55,27 @@
 				fogFactor = 1.0 - clamp( 1.0 , 0.0, 1.0 );
 
 				gl_FragColor = mix( gl_FragColor, vec4( fogColor, gl_FragColor.w ), fogFactor );
-
 			}
-
 		</script>
 
 		<script id="vs_Sun" type="x-shader/x-vertex">
 			uniform vec2 uvScale;
 			varying vec2 vUv;
 
-			void main()
-			{
-
+			void main() {
 				vUv = uvScale * uv;
 				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 				gl_Position = projectionMatrix * mvPosition;
-
 			}
 		</script>
 
 		<script>
-			var cameraRotate, cameraTop, cameraFurther, cameraSide, cameraArc, scene, renderer;
+			var cameraDefault, cameraRotate, cameraArc, cameraBB8, atualCamera;
+			var scene, renderer;
 			var plane;
 			var container;
 			var clock = new THREE.Clock();
-			var uniforms;			
-			var atualCamera = 0;
+			var uniforms;						
 			var velocity = 0.05; // set general rotation velocity
 			var keyboard = new THREEx.KeyboardState();
 
@@ -105,7 +99,6 @@
 
 				//Scene
 				scene = new THREE.Scene();
-
 				containerBB8 = new THREE.Object3D();
 				scene.add(containerBB8);
 
@@ -130,8 +123,6 @@
 				meshPlanet.castShadow = true;
 				scene.add( meshPlanet );
 
-
-
 				//ambient light
 				var ambient = new THREE.AmbientLight(0xffffff);
 				scene.add( ambient );
@@ -139,6 +130,7 @@
 				//spotLight - Sun
 				spotLight = new THREE.SpotLight( 0xffffff, 2 );
 				spotLight.position.set(0, 0, 500);
+
 				//Shadows
 				spotLight.castShadow = true;
 				spotLight.penumbra = 0.05;
@@ -200,33 +192,27 @@
 					new THREE.CubicBezierCurve3(CP[12], CP[13], CP[14], CP[15]),
 					new THREE.CubicBezierCurve3(CP[15], CP[2], CP[13], CP[0])
 				];
-					
 
-				//Rotating Camera
+
+				// Rotating Camera
 				cameraRotate = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 + planetRadius * 2 );
 				cameraRotate.position.set(0, -10, 3 + planetRadius);				
 
-				//Top Camera
-				cameraTop = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 + planetRadius * 2);
-				cameraTop.position.set(0, 0, 150+planetRadius);				
+				// Default Camera
+				cameraDefault = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 + planetRadius * 2);
+				cameraDefault.position.set(0, 0, 150+planetRadius);										
 
-				//Further Camera
-				cameraFurther = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 + planetRadius * 2);
-				cameraFurther.position.set(0, -(100+planetRadius), 3+planetRadius);
-
-				//Side Camera
-				cameraSide = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 + planetRadius * 2);
-				cameraSide.position.set(-(100+planetRadius)-100, 0, 0);
-
-				//Camera Arc
+				// Arc Camera
 				cameraArc = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 + planetRadius * 2);
 
-				//Camera BB8
+				// BB8 Camera
 				cameraBB8 = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 + planetRadius * 2);
 				cameraBB8.position.set(2, 0.5, planetRadius+3);
 				containerBB8.add(cameraBB8);
 
-				controls = new THREE.TrackballControls( cameraTop );
+				atualCamera = cameraDefault;
+
+				controls = new THREE.TrackballControls( cameraDefault );
 
 				controls.rotateSpeed = 2.0;
 				controls.zoomSpeed = 2.0;
@@ -310,13 +296,9 @@
 			function onWindowResize() {
 
 				cameraRotate.aspect = window.innerWidth / window.innerHeight;
-				cameraRotate.updateProjectionMatrix();
-				cameraFurther.aspect = window.innerWidth / window.innerHeight;
-				cameraFurther.updateProjectionMatrix();
-				cameraTop.aspect = window.innerWidth / window.innerHeight;
-				cameraTop.updateProjectionMatrix();
-				cameraSide.aspect = window.innerWidth / window.innerHeight;
-				cameraSide.updateProjectionMatrix();
+				cameraRotate.updateProjectionMatrix();				
+				cameraDefault.aspect = window.innerWidth / window.innerHeight;
+				cameraDefault.updateProjectionMatrix();				
 				cameraArc.aspect = window.innerWidth / window.innerHeight;
 				cameraArc.updateProjectionMatrix();
 				cameraBB8.aspect = window.innerWidth / window.innerHeight;
@@ -331,8 +313,14 @@
 			}
 
 			function keyManager(event){
-				if(event.keyCode == 32)
-					atualCamera = (atualCamera + 1) % 6;					
+				if (event.keyCode == 49)
+					atualCamera = cameraDefault;
+				else if (event.keyCode == 50)
+					atualCamera = cameraRotate;
+				else if (event.keyCode == 51)
+					atualCamera = cameraArc;
+				else if (event.keyCode == 52)
+					atualCamera = cameraBB8;
 			}
 			
 			function render() {										
@@ -420,13 +408,8 @@
 				cameraRotate.up.set(0, 0, 1);
 				cameraRotate.lookAt(new THREE.Vector3(scene.position.x, scene.position.y, planetRadius));	
 
-				cameraTop.up.set(0, 0, 1);
-
-				cameraFurther.up.set(0, 0, 1);
-				cameraFurther.lookAt(scene.position);
-
-				cameraSide.up.set(0, 0, 1);
-				cameraSide.lookAt(scene.position);
+				cameraDefault.up.set(0, 0, 1);
+				
 
 				cameraArc.up.copy(objs["Arc170"].up);
 				cameraArc.lookAt(curves[curve_index].getPointAt(curves[curve_index].getUtoTmapping((curve_counter+0.5) / 100))); 
@@ -435,20 +418,7 @@
 				cameraBB8.up.set(0, 0, 1);
 				cameraBB8.lookAt(new THREE.Vector3(-3, 0, planetRadius+1));
 
-
-				if (atualCamera == 0){
-					renderer.render( scene, cameraRotate );
-				} else if (atualCamera == 1){
-					renderer.render( scene, cameraTop );
-				} else if (atualCamera == 2){
-					renderer.render( scene, cameraFurther);
-				} else if (atualCamera == 3){
-					renderer.render( scene, cameraSide);
-				} else if (atualCamera == 4){
-					renderer.render( scene, cameraArc );
-				} else if (atualCamera == 5){
-					renderer.render( scene, cameraBB8 );
-				}		
+				renderer.render( scene, atualCamera );
 			}
 
 		</script>
