@@ -8,7 +8,7 @@
 	<body>
 		<!-- Import THREE.js and JQuery scripts -->
 		<script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
-		<script src="js/three.js"></script>
+		<script src="js/three.js"></script>			
 		<script src="js/OBJLoader.js"></script>
 		<script src="js/MTLLoader.js"></script>
 		<script src="js/Detector.js"></script>
@@ -86,12 +86,14 @@
 			var objs = {};			
 			var curve_counter = 0;
 			var curve_index = 0;
+			var frame_index = 0;
 
 			if (Detector.webgl) {
 				// Create the scene
     			init();
-    			// Read obj files
+    			// Load models
     			loadObjs();
+    			loadJsons();
     			// Animate
     			animate();
 			} else {
@@ -106,10 +108,13 @@
 				container = document.createElement('div');
 				document.body.appendChild(container);
 
-				// Define scene and BB8 vision
+				// Define scene and center points for BB8 and Stormtrooper
 				scene = new THREE.Scene();
 				containerBB8 = new THREE.Object3D();
 				scene.add(containerBB8);
+				containerStormtrooper = new THREE.Object3D();
+				scene.add(containerStormtrooper);
+
 
 				// Define renderer
 				renderer = new THREE.WebGLRenderer();
@@ -245,14 +250,14 @@
 				    cache: false,	
 				    success: function (xml) {			       			    	
 				        $(xml).find("Model").each(function() {
-				        	// Read XML
+				        	// Read XML				        	
 				        	var name = $(this).find('Name').text();	
 				        	var scaPath = $(this).find('Scale');    	
 				        	var posPath = $(this).find('Position');				        	
 				        	var rotPath = $(this).find('Rotation');
 				        	var x, y, z;
 
-				        	// Apply texture
+				        	// Apply texture				        	
 				        	var mtlL = new THREE.MTLLoader();
 				        	mtlL.setPath('3DModels/'+name+'/');						
 							mtlL.load(name+'.mtl', function( materials ){
@@ -299,10 +304,24 @@
 				        			}
 			        				objs[object.name] = object;
 			        			});				        	
-				        	});
+				        	});					       
 				        });
 				    }
 				});
+			}
+
+			// Function to load Stormtrooper JSON
+			function loadJsons() {
+				var loader = new THREE.JSONLoader();
+    			loader.load('3DModels/Stormtrooper/Stormtrooper.json', function(geometry, materials) {
+        			mesh = new THREE.Mesh(geometry, materials);			        
+			        mesh.rotation.x = -80.1;        
+			        mesh.position.set(3,0,planetRadius);			        
+			        mesh.geometry.dynamic = true;
+			        scene.add(mesh);  
+			        containerStormtrooper.add(mesh);
+			        objs["Stormtrooper"] = mesh;
+    			});
 			}
 
 			// Change cameras aspect when resizing window
@@ -343,24 +362,36 @@
 				// Useful variables					
 				var delta = clock.getDelta();
 				var eTime = clock.getElapsedTime();
-
-				// ======================================= BB8 =======================================				
-				var walkVel = 0.08
-				var turnVel = 1.5
 				var moveDistance = 1 * delta;
 
+				// ======================================= Stormtrooper =======================================	
+				var StormtrooperWalkVel = 0.05;
+
+				// Rotate stormtrooper
+				containerStormtrooper.rotateX(moveDistance * StormtrooperWalkVel);
+
+				// Update vertices to animate the model
+				for (var c = 0; c < mesh.geometry.vertices.length; c++)    	
+			    	mesh.geometry.vertices[c].set(mesh.geometry.morphTargets[frame_index].vertices[c].x, mesh.geometry.morphTargets[frame_index].vertices[c].y, mesh.geometry.morphTargets[frame_index].vertices[c].z);    
+			    frame_index = (frame_index + 1) % 40;
+			    mesh.geometry.verticesNeedUpdate = true;
+
+				// ======================================= BB8 =======================================				
+				var BB8WalkVel = 0.08
+				var turnVel = 1.5
+				
 				// Change BB8 position according to pressed button
 				if ( keyboard.pressed("W") ){
-					containerBB8.rotateY(-moveDistance*walkVel);
+					containerBB8.rotateY(-moveDistance*BB8WalkVel);
 				}
 				if ( keyboard.pressed("S") ){
-					containerBB8.rotateY(moveDistance*walkVel);
+					containerBB8.rotateY(moveDistance*BB8WalkVel);
 				}
 				if ( keyboard.pressed("A") ){
-					containerBB8.rotateX(moveDistance*walkVel);
+					containerBB8.rotateX(moveDistance*BB8WalkVel);
 				}
 				if ( keyboard.pressed("D") ){
-					containerBB8.rotateX(-moveDistance*walkVel);
+					containerBB8.rotateX(-moveDistance*BB8WalkVel);
 				}
 				if ( keyboard.pressed("Q")){
 					containerBB8.rotateZ(moveDistance*turnVel);
